@@ -17,7 +17,7 @@ Extracts recipe data (name, ingredients, instructions) from recipe websites by p
 
 Install with:
 ```
-pip install requests beautifulsoup4 html5lib
+pip install -r requirements.txt
 ```
 
 ## Usage

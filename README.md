@@ -8,8 +8,4 @@ A collection of web scraping tools and scripts.
 
 ## Setup
 
-Each project may have its own dependencies — see its individual README. General requirements across this repo include `requests`, `beautifulsoup4`, and `html5lib`.
-
-```
-pip install requests beautifulsoup4 html5lib
-```
+Each project has its own `requirements.txt` — see its individual README for setup instructions.

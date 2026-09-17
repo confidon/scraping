@@ -1,0 +1,12 @@
+# Virtual environments
+_scraping/
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
