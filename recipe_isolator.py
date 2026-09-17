@@ -10,35 +10,67 @@ HEADERS = {
 }
 
 
-def connect(url, max_retries=5):
-    delay = 1
-    for attempt in range(max_retries):
-        try:
-            resp = requests.get(url, headers=HEADERS, timeout=10)
-        except requests.RequestException:
-            time.sleep(delay)
-            delay *= 2
-            continue
-        
-        if resp.status_code == 200:
-            return resp
-        
-        time.sleep(delay)
-        delay *= 2
-        
-    return resp
-    
-
 def newLine():
+    """ Prints an empty line in the command line """
+    
     print("")
     
     
-def clear(): 
+def clear():
+    """ Clears the screen by printing an empty line 100 times """
+     
     for _ in range(100):
         print("")
 
-def getRecipe(url):
+
+
+def connect(url, max_retries=5):
     
+    """
+    GET a URL, retrying with exponential backoff on failure or non-200 status.
+
+    Retries up to max_retries times, sleeping 1s, 2s, 4s, ... between attempts,
+    on connection errors (requests.RequestException) or non-200 responses.
+
+    Raises the last exception, or a RuntimeError with the last status code,
+    if all retries are exhausted without a 200 response.
+
+    """
+    
+    
+    delay = 1
+    last_exc = None
+    for attempt in range(max_retries):
+        try:
+            resp = requests.get(url, headers=HEADERS, timeout=10)
+        except requests.RequestException as e:
+            last_exc = e
+            time.sleep(delay)
+            delay *= 2
+            continue
+
+        if resp.status_code == 200:
+            return resp
+
+        time.sleep(delay)
+        delay *= 2
+
+    if last_exc:
+        raise last_exc
+    raise RuntimeError(f"Failed to fetch {url} after {max_retries} retries, last status {resp.status_code}")
+
+    
+
+
+def getRecipe(url):
+    """
+    Fetch a page and extract its embedded Recipe schema.org data.
+
+    Connects to url, parses the HTML, and scans <script type="application/ld+json">
+    tags for a JSON-LD object of @type "Recipe" (including one nested inside an
+    @graph list). Returns the recipe dict, or None if no Recipe data is found.
+    """
+       
     
     resp = connect(url)
     print(resp.status_code)
@@ -64,7 +96,15 @@ def getRecipe(url):
     return None
 
 
-def print_recipe(recipe):
+def printRecipe(recipe):
+    """
+    Print a recipe dict's name, ingredients, and instructions to stdout.
+
+    Expects the schema.org Recipe shape: 'name', 'recipeIngredient' (list of
+    strings), and 'recipeInstructions' (list of HowToStep and/or HowToSection
+    items, the latter printed with its nested steps indented).
+    """
+
         
     print(recipe['name'])
 
